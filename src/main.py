@@ -53,9 +53,20 @@ def generate_page(from_path, template_path, dest_path):
          f.write(html)
          f.close()
 
+def generate_pages_recursive(src, template_path, dest):
+    list = filter(lambda item: item[0] != ".", os.listdir(src))
+    for item in list:
+        if os.path.isfile(src + "/" + item) and item.endswith(".md"):
+            generate_page(f"{src}/{item}", template_path, f"{dest}/{item[:-3]}.html")
+        else:
+            if not os.path.exists(dest + "/" + item):
+                os.makedirs(dest + "/" + item)
+                print(f"Generating pages directory {dest}/{item}")
+            generate_pages_recursive(src + "/" + item, template_path, dest + "/" + item)
+
 
 def main():
     copy_files("static", "public")
-    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content", "template.html", "public")
 
 main()
